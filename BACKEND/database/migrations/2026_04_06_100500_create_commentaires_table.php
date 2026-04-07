@@ -21,7 +21,8 @@ return new class extends Migration
             $table->foreign('id_entrant')->references('id_entrant')->on('courrier_entrant')->cascadeOnDelete();
             $table->foreign('id_sortant')->references('id_sortant')->on('courrier_sortant')->cascadeOnDelete();
             $table->foreign('id_auteur')->references('id_utilisateur')->on('utilisateur');
-    });
+        });
+        
 }
 
     /**
