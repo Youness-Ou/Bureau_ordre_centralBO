@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('email', 150)->unique();
             $table->string('mot_de_passe');
             $table->boolean('actif')->default(true);
-            $table->dateTime('date_creation')->useCurrent();
             $table->unsignedBigInteger('id_role');
             $table->unsignedBigInteger('id_service');
+            $table->timestamps();
             $table->foreign('id_role')->references('id_role')->on('role');
             $table->foreign('id_service')->references('id_service')->on('service');
             $table->index('id_role');

@@ -14,16 +14,6 @@ class Service extends Model
 
     public function utilisateurs()
     {
-        return $this->hasMany(Utilisateur::class, 'id_service');
-    }
-
-    public function courriersEntrants()
-    {
-        return $this->hasMany(CourrierEntrant::class, 'id_service_dest');
-    }
-
-    public function courriersSortants()
-    {
-        return $this->hasMany(CourrierSortant::class, 'id_service_emetteur');
+        return $this->hasMany(Utilisateur::class, 'id_service', 'id_service');
     }
 }

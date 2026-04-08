@@ -1,121 +1,97 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Sidebar      from "./components/Sidebar";
+import { Topbar, ToastContainer, C } from "./components/ui";
+import LoginPage    from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import UsersPage    from "./pages/UsersPage";
+import ServicesPage from "./pages/ServicesPage";
+import ProfilePage  from "./pages/ProfilePage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import useToast     from "./hooks/useToast";
 
-function App() {
-  const [count, setCount] = useState(0)
+// ─── Métadonnées des pages ───────────────────────────────────────
+const PAGE_META = {
+  dashboard: { title: "Tableau de bord",        subtitle: "Vue d'ensemble de votre espace" },
+  users:     { title: "Gestion des utilisateurs", subtitle: "US-05 · Création, édition, désactivation" },
+  services:  { title: "Gestion des services",    subtitle: "US-06 · Structure organisationnelle" },
+  profile:   { title: "Mon profil",              subtitle: "US-08 · Informations et sécurité" },
+};
+
+// ─── Layout principal (après connexion) ─────────────────────────
+const AppLayout = ({ toast }) => {
+  const { user } = useAuth();
+  const [page, setPage] = useState("dashboard");
+  const meta = PAGE_META[page] || { title: "Page" };
+
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", background: C.greyXL }}>
+      <Sidebar page={page} setPage={setPage} />
+      <div style={{ marginLeft: 240, flex: 1, display: "flex", flexDirection: "column" }}>
+        <Topbar title={meta.title} subtitle={meta.subtitle} />
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          {page === "dashboard" && <DashboardPage />}
+          {page === "users"     && (
+            <ProtectedRoute roles={["admin"]}>
+              <UsersPage toast={toast} />
+            </ProtectedRoute>
+          )}
+          {page === "services"  && (
+            <ProtectedRoute roles={["admin"]}>
+              <ServicesPage toast={toast} />
+            </ProtectedRoute>
+          )}
+          {page === "profile"   && <ProfilePage toast={toast} />}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Root ────────────────────────────────────────────────────────
+const Root = () => {
+  const { user, loading } = useAuth();
+  const { items: toasts, push: toast, pop } = useToast();
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#1a1a1a" }}>
+        <div style={{ color: C.white, fontSize: 14 }}>Chargement…</div>
+      </div>
+    );
+  }
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <style>{`
+        @keyframes modalIn  { from { opacity:0; transform:scale(.96) translateY(10px) } to { opacity:1; transform:scale(1) translateY(0) } }
+        @keyframes fadeIn   { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes spin     { to   { transform:rotate(360deg) } }
+        @keyframes toastIn  { from { opacity:0; transform:translateX(30px) } to { opacity:1; transform:translateX(0) } }
+        * { box-sizing:border-box; margin:0; padding:0 }
+        body { font-family:'Segoe UI', system-ui, -apple-system, sans-serif }
+        button, input, select, textarea { font-family:inherit }
+        ::-webkit-scrollbar { width:5px; height:5px }
+        ::-webkit-scrollbar-track { background:#f0f0f0 }
+        ::-webkit-scrollbar-thumb { background:#ccc; border-radius:3px }
+        ::-webkit-scrollbar-thumb:hover { background:#aaa }
+      `}</style>
 
-      <div className="ticks"></div>
+      {!user
+        ? <LoginPage onLoginSuccess={() => toast("Connexion réussie !", "success")} />
+        : <AppLayout toast={toast} />
+      }
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <ToastContainer items={toasts} pop={pop} />
     </>
-  )
-}
+  );
+};
 
-export default App
+// ─── Export principal avec AuthProvider ──────────────────────────
+export default function App() {
+  return (
+    <AuthProvider>
+      <Root />
+    </AuthProvider>
+  );
+}

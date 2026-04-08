@@ -14,6 +14,6 @@ class Role extends Model
 
     public function utilisateurs()
     {
-        return $this->hasMany(Utilisateur::class, 'id_role');
+        return $this->hasMany(Utilisateur::class, 'id_role', 'id_role');
     }
 }
