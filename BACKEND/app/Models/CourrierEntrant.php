@@ -48,8 +48,8 @@ class CourrierEntrant extends Model
         return $this->hasMany(PieceJointe::class, 'id_entrant');
     }
 
-    public function sortantReponse()
+    /* public function sortantReponse()
     {
         return $this->hasOne(CourrierSortant::class, 'id_entrant_ref');
-    }
+    } */
 }
