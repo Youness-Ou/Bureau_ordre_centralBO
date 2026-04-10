@@ -1,13 +1,5 @@
 import { useAuth } from "../context/AuthContext";
 
-/**
- * ProtectedRoute — affiche les enfants uniquement si l'utilisateur
- * est connecté et possède l'un des rôles autorisés.
- *
- * Props :
- *   roles?: string[]  — si absent, tout utilisateur connecté est autorisé
- *   fallback?: ReactNode — affiché si accès refusé (défaut : null)
- */
 const ProtectedRoute = ({ children, roles, fallback = null }) => {
   const { user, loading } = useAuth();
 

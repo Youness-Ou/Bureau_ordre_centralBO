@@ -84,7 +84,7 @@ const LoginPage = ({ onLoginSuccess }) => {
             overflow: "hidden",
           }}>
             <img
-              src="/logo-tgr.png"
+              src="/logo.png"
               alt="TGR"
               style={{ width: "88%", height: "88%", objectFit: "contain" }}
               onError={(e) => {

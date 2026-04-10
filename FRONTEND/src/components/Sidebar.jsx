@@ -6,6 +6,10 @@ const NAV_ITEMS = {
   main: [
     { id: "dashboard", icon: "⊞", label: "Tableau de bord" },
   ],
+  agentbo: [
+    { id: "courriers_entrants", icon: "📥", label: "Courriers entrants" },
+    { id: "courriers_sortants", icon: "📤", label: "Courriers sortants" },
+  ],
   admin: [
     { id: "users",    icon: "👥", label: "Utilisateurs" },
     { id: "services", icon: "🏢", label: "Services" },
@@ -27,12 +31,9 @@ const NavGroup = ({ title, items, page, setPage }) => (
     }}>
       {title}
     </div>
-    {items.map((item) => {
-      const active = page === item.id;
-      return (
-        <NavItem key={item.id} item={item} active={active} onClick={() => setPage(item.id)} />
-      );
-    })}
+    {items.map((item) => (
+      <NavItem key={item.id} item={item} active={page === item.id} onClick={() => setPage(item.id)} />
+    ))}
   </div>
 );
 
@@ -81,7 +82,9 @@ const NavItem = ({ item, active, onClick }) => {
 
 const Sidebar = ({ page, setPage }) => {
   const { user, logout } = useAuth();
-  const isAdmin = user?.role?.libelle === "admin";
+  const isAdmin   = user?.role?.libelle === "admin";
+  // agent_bo uniquement — l'admin n'a PAS accès aux courriers
+  const isAgentBO = user?.role?.libelle === "agent_bo";
 
   return (
     <div style={{
@@ -95,33 +98,39 @@ const Sidebar = ({ page, setPage }) => {
       borderRight: `1px solid ${C.sidebarBorder}`,
     }}>
       {/* Logo Header */}
-      <div style={{
-        padding: "18px 16px",
-        borderBottom: `1px solid ${C.sidebarBorder}`,
-      }}>
+      <div style={{ padding: "18px 16px", borderBottom: `1px solid ${C.sidebarBorder}` }}>
         <TGRLogo size={38} showText={true} />
       </div>
 
       {/* Navigation */}
       <nav style={{ flex: 1, padding: "10px 0 8px", overflowY: "auto" }}>
         <NavGroup title="Principal" items={NAV_ITEMS.main} page={page} setPage={setPage} />
+
+        {/* Section Courriers : agent_bo UNIQUEMENT, pas l'admin */}
+        {isAgentBO && (
+          <NavGroup title="Courriers" items={NAV_ITEMS.agentbo} page={page} setPage={setPage} />
+        )}
+
+        {/* Section Administration : admin UNIQUEMENT */}
         {isAdmin && (
           <NavGroup title="Administration" items={NAV_ITEMS.admin} page={page} setPage={setPage} />
         )}
+
         <NavGroup title="Compte" items={NAV_ITEMS.account} page={page} setPage={setPage} />
       </nav>
 
       {/* User Footer */}
       <div style={{ padding: "12px 14px", borderTop: `1px solid ${C.sidebarBorder}` }}>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 9,
-          padding: "8px 10px",
-          borderRadius: 8,
-          background: "rgba(255,255,255,0.04)",
-          border: `1px solid rgba(255,255,255,0.06)`,
-          marginBottom: 8,
-          cursor: "pointer",
-        }}
+        <div
+          style={{
+            display: "flex", alignItems: "center", gap: 9,
+            padding: "8px 10px",
+            borderRadius: 8,
+            background: "rgba(255,255,255,0.04)",
+            border: `1px solid rgba(255,255,255,0.06)`,
+            marginBottom: 8,
+            cursor: "pointer",
+          }}
           onClick={() => setPage("profile")}
         >
           <Avatar nom={user?.nom || ""} prenom={user?.prenom || ""} size={30} fontSize={11} />

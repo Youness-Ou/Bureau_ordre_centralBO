@@ -1,26 +1,28 @@
 import { useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import Sidebar      from "./components/Sidebar";
+import Sidebar           from "./components/Sidebar";
 import { Topbar, ToastContainer, C } from "./components/ui";
-import LoginPage    from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import UsersPage    from "./pages/UsersPage";
-import ServicesPage from "./pages/ServicesPage";
-import ProfilePage  from "./pages/ProfilePage";
-import ProtectedRoute from "./components/ProtectedRoute";
-import useToast     from "./hooks/useToast";
+import LoginPage         from "./pages/LoginPage";
+import DashboardPage     from "./pages/DashboardPage";
+import UsersPage         from "./pages/UsersPage";
+import ServicesPage      from "./pages/ServicesPage";
+import ProfilePage       from "./pages/ProfilePage";
+import CourrierEntrantsPage  from "./pages/Courrierentrantspage";
+import ProtectedRoute    from "./components/ProtectedRoute";
+import useToast          from "./hooks/useToast";
 
 // ─── Métadonnées des pages ───────────────────────────────────────
 const PAGE_META = {
-  dashboard: { title: "Tableau de bord",        subtitle: "Vue d'ensemble de votre espace" },
-  users:     { title: "Gestion des utilisateurs", subtitle: "US-05 · Création, édition, désactivation" },
-  services:  { title: "Gestion des services",    subtitle: "US-06 · Structure organisationnelle" },
-  profile:   { title: "Mon profil",              subtitle: "US-08 · Informations et sécurité" },
+  dashboard:          { title: "Tableau de bord",           subtitle: "Vue d'ensemble de votre espace" },
+  courriers_entrants: { title: "Courriers entrants",        subtitle: "EP-01 · Enregistrement et suivi des courriers reçus" },
+  courriers_sortants: { title: "Courriers sortants",        subtitle: "EP-01 · Création et suivi des courriers envoyés" },
+  users:              { title: "Gestion des utilisateurs",  subtitle: "EP-02 · Création, édition, désactivation" },
+  services:           { title: "Gestion des services",      subtitle: "EP-02 · Structure organisationnelle" },
+  profile:            { title: "Mon profil",                subtitle: "Informations personnelles et sécurité" },
 };
 
 // ─── Layout principal (après connexion) ─────────────────────────
 const AppLayout = ({ toast }) => {
-  const { user } = useAuth();
   const [page, setPage] = useState("dashboard");
   const meta = PAGE_META[page] || { title: "Page" };
 
@@ -30,18 +32,34 @@ const AppLayout = ({ toast }) => {
       <div style={{ marginLeft: 240, flex: 1, display: "flex", flexDirection: "column" }}>
         <Topbar title={meta.title} subtitle={meta.subtitle} />
         <div style={{ flex: 1, overflowY: "auto" }}>
+
           {page === "dashboard" && <DashboardPage />}
-          {page === "users"     && (
+
+          {/* ── EP-01 : Espace Agent BO uniquement ── */}
+          {page === "courriers_entrants" && (
+            <ProtectedRoute roles={["agent_bo"]}>
+              <CourrierEntrantsPage toast={toast} />
+            </ProtectedRoute>
+          )}
+          {page === "courriers_sortants" && (
+            <ProtectedRoute roles={["agent_bo"]}>
+              <CourrierSortantsPage toast={toast} />
+            </ProtectedRoute>
+          )}
+
+          {/* ── EP-02 : Espace Admin uniquement ── */}
+          {page === "users" && (
             <ProtectedRoute roles={["admin"]}>
               <UsersPage toast={toast} />
             </ProtectedRoute>
           )}
-          {page === "services"  && (
+          {page === "services" && (
             <ProtectedRoute roles={["admin"]}>
               <ServicesPage toast={toast} />
             </ProtectedRoute>
           )}
-          {page === "profile"   && <ProfilePage toast={toast} />}
+
+          {page === "profile" && <ProfilePage toast={toast} />}
         </div>
       </div>
     </div>
